@@ -9,7 +9,7 @@ When importing it will remove all documents stored.
 
 The ids of the documents will be kept.
 
-## Installing
+### Installing
 
 ```
 meteor add nicolaslopezj:orion-exporter

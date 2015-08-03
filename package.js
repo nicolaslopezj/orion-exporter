@@ -1,6 +1,6 @@
 Package.describe({
   name: 'nicolaslopezj:orion-exporter',
-  summary: 'Export and import all your data',
+  summary: 'Export and import all your Orion data',
   version: '1.0.0',
   git: 'https://github.com/nicolaslopezj/orion-exporter'
 });
