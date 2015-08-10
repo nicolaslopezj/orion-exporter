@@ -13,7 +13,7 @@ orion.links.add({
 ReactiveTemplates.onRendered('orionExport', function() {
   Session.set('orionExport_error', null);
   Session.set('orionExport_isLoading', false);
-})
+});
 
 ReactiveTemplates.helpers('orionExport', {
   currentError: function() {
