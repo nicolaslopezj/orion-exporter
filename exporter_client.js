@@ -1,14 +1,18 @@
 /**
  * Register the link
  */
-orion.links.add({
-  index: 110,
-  identifier: 'orion-export',
-  title: 'Export/Import',
-  routeName: 'nicolaslopezj.orionExport',
-  activeRouteRegex: 'nicolaslopezj.orionExport',
-  permission: 'nicolaslopezj.orionExport'
+Tracker.autorun(function() {
+  var index = Options.get('showExportTab') ? 110 : undefined; // null to hide from the tabs
+  orion.links.add({
+    index: index,
+    identifier: 'orion-export',
+    title: 'Export/Import',
+    routeName: 'nicolaslopezj.orionExport',
+    activeRouteRegex: 'nicolaslopezj.orionExport',
+    permission: 'nicolaslopezj.orionExport'
+  });
 });
+
 
 ReactiveTemplates.onRendered('orionExport', function() {
   Session.set('orionExport_error', null);
@@ -27,13 +31,13 @@ ReactiveTemplates.helpers('orionExport', {
 ReactiveTemplates.events('orionExport', {
   'click .btn-export': function(event, template) {
     var key = Roles.keys.request(Meteor.userId());
-    var url = Router.url('nicolaslopezj.orionExport.download', { key: key });
+    var url = '/admin/download-export/' + key;
     window.open(url);
   },
   'change .input-import': function(event, template) {
     Session.set('orionExport_isLoading', true);
     var key = Roles.keys.request(Meteor.userId());
-    var url = Router.url('nicolaslopezj.orionExport.import', { key: key });
+    var url = '/admin/import-data/' + key;
     var file = event.currentTarget.files[0];
 
     if (file) {

@@ -1,10 +1,11 @@
-var collections = [];
+Options.init('showExportTab', false);
+exportPages = _.has(Package, 'orionjs:pages');
+collections = orion.collections.list;
 
-orion.collections.onCreated(function(collection) {
-  collections.push(this);
-});
+if (exportPages) {
+  var pages = orion.pages.collection;
+}
 
-var pages = orion.pages.collection;
 
 /**
  * Init the template name variable
@@ -23,77 +24,14 @@ Roles.registerAction('nicolaslopezj.orionExport', true);
 /**
  * Register the route
  */
-Router.route('/admin/export', function() {
-  this.layout(ReactiveTemplates.get('layout'));
-  this.render(ReactiveTemplates.get('orionExport'));
-}, { name: 'nicolaslopezj.orionExport' });
+RouterLayer.route('/admin/export', {
+  layout: 'layout',
+  template: 'orionExport',
+  name: 'nicolaslopezj.orionExport',
+  reactiveTemplates: true
+});
 
 /**
  * Ensure user is logged in
  */
 orion.accounts.addProtectedRoute('nicolaslopezj.orionExport');
-
-Router.route('/admin/download-export/:key', function() {
-  var userId = Roles.keys.getUserId(this.params.key);
-  if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
-    throw new Meteor.Error('unauthorized', 'The user is not authorized to perform this action');
-  }
-
-  var data = {};
-
-  data.dictionary = orion.dictionary.findOne();
-  data.pages = pages.find().fetch();
-  data.collections = {};
-
-  _.each(collections, function(collection) {
-    data.collections[collection._name] = collection.find().fetch();
-  });
-
-  this.response.setHeader('Content-Type', 'application/json');
-  this.response.setHeader('Content-Disposition', 'attachment; filename=backup.orionexport');
-
-  var json = JSON.stringify(data);
-  this.response.end(json);
-
-}, { name: 'nicolaslopezj.orionExport.download', where: 'server' });
-
-Router.route('/admin/import-data/:key', function() {
-  var userId = Roles.keys.getUserId(this.params.key);
-  if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
-    throw new Meteor.Error('unauthorized', 'The user is not authorized to perform this action');
-  }
-
-  try {
-    var json = this.request.body.json;
-    var data = JSON.parse(json);
-
-    // import dictionary
-    orion.dictionary.remove({});
-    orion.dictionary.insert(data.dictionary, { validate: false });
-
-    // import pages
-    // ran into an authorization issue, so im using a loop instead of remove({})
-    orion.pages.collection.find().forEach(function(collection) {
-      orion.pages.collection.remove({_id: collection._id})
-    });
-
-    data.pages.forEach(function(page) {
-      orion.pages.collection.insert(page, {validate: false})
-    });
-
-    // import collections
-    _.each(collections, function(collection) {
-      var collectionData = data.collections[collection._name];
-      if (_.isArray(collectionData)) {
-        collection.remove({});
-        _.each(collectionData, function(doc) {
-          collection.insert(doc, { validate: false });
-        });
-      }
-    });
-  } catch (e) {
-    console.log(e);
-    throw new Meteor.Error('parse-error', 'Error parsing the file');
-  }
-  this.response.end('ok');
-}, { name: 'nicolaslopezj.orionExport.import', where: 'server' });

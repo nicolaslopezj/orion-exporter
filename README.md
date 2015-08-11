@@ -15,7 +15,13 @@ The ids of the documents will be kept.
 meteor add nicolaslopezj:orion-exporter
 ```
 
-Now you will see the tab in the admin panel.
+By default the tab is not shown, but you can navigate to ```/export```.
+
+If you wan't to make the tab visible, call:
+
+```js
+Options.set('showExportTab', true);
+```
 
 #### Security
 
