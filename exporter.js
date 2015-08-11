@@ -2,7 +2,9 @@ var collections = [];
 
 orion.collections.onCreated(function(collection) {
   collections.push(this);
-})
+});
+
+var pages = orion.pages.collection;
 
 /**
  * Init the template name variable
@@ -40,6 +42,7 @@ Router.route('/admin/download-export/:key', function() {
   var data = {};
 
   data.dictionary = orion.dictionary.findOne();
+  data.pages = pages.find().fetch();
   data.collections = {};
 
   _.each(collections, function(collection) {
@@ -67,6 +70,16 @@ Router.route('/admin/import-data/:key', function() {
     // import dictionary
     orion.dictionary.remove({});
     orion.dictionary.insert(data.dictionary, { validate: false });
+
+    // import pages
+    // ran into an authorization issue, so im using a loop instead of remove({})
+    orion.pages.collection.find().forEach(function(collection) {
+      orion.pages.collection.remove({_id: collection._id})
+    });
+
+    data.pages.forEach(function(page) {
+      orion.pages.collection.insert(page, {validate: false})
+    });
 
     // import collections
     _.each(collections, function(collection) {
