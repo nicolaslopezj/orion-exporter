@@ -1,6 +1,6 @@
 Options.init('showExportTab', false);
 exportPages = _.has(Package, 'orionjs:pages');
-var collections = [];
+collections = [];
 
 orion.collections.onCreated(function(collection) {
   collections.push(this);
