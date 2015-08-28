@@ -38,13 +38,13 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
 
     // import dictionary
     orion.dictionary.remove({});
-    orion.dictionary.insert(data.dictionary, { validate: false });
+    orion.dictionary.insert(data.dictionary);
 
     // import pages
     if (exportPages) {
       orion.pages.collection.remove({});
       data.pages.forEach(function(page) {
-        orion.pages.collection.insert(page, {validate: false})
+        orion.pages.collection.insert(page);
       });
     }
 
@@ -54,7 +54,7 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
       if (_.isArray(collectionData)) {
         collection.remove({});
         _.each(collectionData, function(doc) {
-          collection.insert(doc, { validate: false });
+          collection.insert(doc);
         });
       }
     });
