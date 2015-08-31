@@ -1,5 +1,5 @@
 var bodyParser = Npm.require('body-parser'); // using meteorhacks:npm package
-Picker.middleware(bodyParser.json());
+Picker.middleware(bodyParser.json({ limit: '100mb' }));
 
 Picker.route('/admin/download-export/:key', function(params, req, res, next) {
   var userId = Roles.keys.getUserId(params.key);
@@ -44,7 +44,7 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     if (exportPages) {
       orion.pages.collection.remove({});
       data.pages.forEach(function(page) {
-        orion.pages.collection.insert(page);
+        orion.pages.collection.insert(page, { validate: false });
       });
     }
 
@@ -54,7 +54,7 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
       if (_.isArray(collectionData)) {
         collection.remove({});
         _.each(collectionData, function(doc) {
-          collection.insert(doc);
+          collection.insert(doc, { validate: false });
         });
       }
     });
