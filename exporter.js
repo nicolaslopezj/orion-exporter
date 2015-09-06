@@ -7,7 +7,7 @@ orion.collections.onCreated(function(collection) {
 })
 
 if (exportPages) {
-  var pages = orion.pages.collection;
+  pages = orion.pages.collection;
 }
 
 
