@@ -1,8 +1,8 @@
 <template name="nicolaslopezj_orionExporter_materialize">
-  {{# Layout template="orionMaterializeHeaderContainer" }}
+  {{# Layout template=materializeHeader }}
       Export/Import
   {{/ Layout }}
-  {{# Layout template="orionMaterializeContentContainer" }}
+  {{# Layout template=materializeContent }}
     {{# with currentError }}
       <div class="red">
         <b>[{{ error }}]</b> {{ reason }}

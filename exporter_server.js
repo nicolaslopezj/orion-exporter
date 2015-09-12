@@ -44,7 +44,7 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     if (exportPages) {
       orion.pages.collection.remove({});
       data.pages.forEach(function(page) {
-        orion.pages.collection.insert(page, { validate: false });
+        orion.pages.collection.insert(page);
       });
     }
 
