@@ -38,7 +38,7 @@ Picker.route('/admin/download-export/:key', function(params, req, res, next) {
   }
 
   var data = {};
-	
+
   data.dictionary = orion.dictionary.findOne();
   data.orionFiles = orion.filesystem.collection.find().fetch();
   if (exportPages) {
@@ -70,10 +70,10 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     // import dictionary
     orion.dictionary.remove({});
     orion.dictionary.insert(data.dictionary);
-	
-	// import orionFiles
-	orion.filesystem.collection.remove({});
-	orion.filesystem.collection.insert(data.orionFiles, {validate: false});
+
+  	// import orionFiles
+  	orion.filesystem.collection.remove({});
+  	orion.filesystem.collection.insert(data.orionFiles, {validate: false});
 
     // import pages
     if (exportPages) {
