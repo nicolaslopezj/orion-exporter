@@ -4,7 +4,7 @@ collections = [];
 
 orion.collections.onCreated(function(collection) {
   collections.push(this);
-})
+});
 
 if (exportPages) {
   pages = orion.pages.collection;

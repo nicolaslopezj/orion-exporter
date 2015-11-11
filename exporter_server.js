@@ -1,6 +1,36 @@
 var bodyParser = Npm.require('body-parser'); // using meteorhacks:npm package
 Picker.middleware(bodyParser.json({ limit: '100mb' }));
 
+Picker.route('/admin/download-export-users/:key', function(params, req, res, next) {
+  var userId = Roles.keys.getUserId(params.key);
+  if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
+    throw new Meteor.Error('unauthorized', 'The user is not authorized to perform this action');
+  }
+
+  var data = {};
+
+  data.dictionary = orion.dictionary.findOne();
+  if (exportPages) {
+    data.pages = pages.find().fetch();
+  }
+  data.collections = {};
+
+  _.each(collections, function(collection) {
+    data.collections[collection._name] = collection.find().fetch();
+  });
+
+  data.users = Meteor.users.find().fetch();
+  if (Roles._collection) {
+    data.roles = Roles._collection.find().fetch();
+  }
+
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', 'attachment; filename=backup.orionexport');
+
+  var json = JSON.stringify(data);
+  res.end(json);
+});
+
 Picker.route('/admin/download-export/:key', function(params, req, res, next) {
   var userId = Roles.keys.getUserId(params.key);
   if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
@@ -52,12 +82,43 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     _.each(collections, function(collection) {
       var collectionData = data.collections[collection._name];
       if (_.isArray(collectionData)) {
-        collection.remove({});
+        collection.direct.remove({});
         _.each(collectionData, function(doc) {
-          collection.insert(doc, { validate: false });
+          collection.direct.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
         });
       }
     });
+
+    var collectionData = null;
+
+    if (_.has(data, 'users')) {
+      collectionData = data.users;
+      if (_.isArray(collectionData)) {
+        Meteor.users.direct.remove({});
+        _.each(collectionData, function(doc) {
+          Meteor.users.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
+        });
+      }
+    }
+
+    if (_.has(data, 'roles')) {
+      collectionData = data.roles;
+      if (_.isArray(collectionData)) {
+        if (Roles._collection) {
+          Roles._collection.remove({});
+          _.each(collectionData, function(doc) {
+            Roles._collection.insert(doc);
+          });
+        } else {
+          Roles._oldCollection.remove({});
+          _.each(collectionData, function(doc) {
+            Roles._oldCollection.insert(doc);
+          });
+        }
+
+      }
+    }
+
   } catch (e) {
     console.log(e);
     throw new Meteor.Error('parse-error', 'Error parsing the file');

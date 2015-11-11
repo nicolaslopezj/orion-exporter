@@ -32,7 +32,12 @@ ReactiveTemplates.events('orionExport', {
   'click .btn-export': function(event, template) {
     var key = Roles.keys.request(Meteor.userId());
     var url = '/admin/download-export/' + key;
-    window.open(url);
+    window.location = url;
+  },
+  'click .btn-export-with-users': function(event, template) {
+    var key = Roles.keys.request(Meteor.userId());
+    var url = '/admin/download-export-users/' + key;
+    window.location = url;
   },
   'change .input-import': function(event, template) {
     Session.set('orionExport_isLoading', true);
@@ -58,13 +63,13 @@ ReactiveTemplates.events('orionExport', {
             }
           }
           Session.set('orionExport_isLoading', false);
-        })
-      }
+        });
+      };
       reader.onerror = function (_event) {
         console.log(_event);
         Session.set('orionExport_error', _event);
         Session.set('orionExport_isLoading', false);
-      }
+      };
     }
   }
 });
