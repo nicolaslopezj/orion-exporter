@@ -4,7 +4,8 @@ Picker.middleware(bodyParser.json({ limit: '100mb' }));
 Picker.route('/admin/download-export-users/:key', function(params, req, res, next) {
   var userId = Roles.keys.getUserId(params.key);
   if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
-    throw new Meteor.Error('unauthorized', 'The user is not authorized to perform this action');
+    res.end('The user is not authorized to perform this action');
+    return;
   }
 
   var data = {};
@@ -40,7 +41,6 @@ Picker.route('/admin/download-export/:key', function(params, req, res, next) {
   var data = {};
 
   data.dictionary = orion.dictionary.findOne();
-  data.orionFiles = orion.filesystem.collection.find().fetch();
   if (exportPages) {
     data.pages = pages.find().fetch();
   }
@@ -61,6 +61,7 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
   var userId = Roles.keys.getUserId(params.key);
   if (!userId || !Roles.userHasPermission(userId, 'nicolaslopezj.orionExport')) {
     throw new Meteor.Error('unauthorized', 'The user is not authorized to perform this action');
+
   }
 
   try {
@@ -70,10 +71,6 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     // import dictionary
     orion.dictionary.remove({});
     orion.dictionary.insert(data.dictionary);
-
-  	// import orionFiles
-  	orion.filesystem.collection.remove({});
-  	orion.filesystem.collection.insert(data.orionFiles, {validate: false});
 
     // import pages
     if (exportPages) {
@@ -87,9 +84,17 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     _.each(collections, function(collection) {
       var collectionData = data.collections[collection._name];
       if (_.isArray(collectionData)) {
-        collection.direct.remove({});
+        if (collection.direct) {
+          collection.direct.remove({});
+        } else {
+          collection.remove({});
+        }
         _.each(collectionData, function(doc) {
-          collection.direct.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
+          if (collection.direct && collection._c2) {
+            collection.direct.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
+          } else {
+            collection.insert(doc);
+          }
         });
       }
     });
@@ -99,9 +104,17 @@ Picker.route('/admin/import-data/:key', function(params, req, res, next) {
     if (_.has(data, 'users')) {
       collectionData = data.users;
       if (_.isArray(collectionData)) {
-        Meteor.users.direct.remove({});
+        if (Meteor.users.direct) {
+          Meteor.users.direct.remove({});
+        } else {
+          Meteor.users.remove({});
+        }
         _.each(collectionData, function(doc) {
-          Meteor.users.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
+          if (Meteor.users.direct && Meteor.users._c2) {
+            Meteor.users.direct.insert(doc, { validate: false, filter: false, getAutoValues: false, removeEmptyStrings: false });
+          } else {
+            Meteor.users.insert(doc);
+          }
         });
       }
     }
