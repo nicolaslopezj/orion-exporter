@@ -1,15 +1,15 @@
 Options.init('showExportTab', false);
+Options.init('dontImportCollections', []);
 exportPages = _.has(Package, 'orionjs:pages');
 collections = [];
 
-orion.collections.onCreated(function(collection) {
+orion.collections.onCreated(function (collection) {
   collections.push(this);
 });
 
 if (exportPages) {
   pages = orion.pages.collection;
 }
-
 
 /**
  * Init the template name variable
@@ -32,7 +32,7 @@ RouterLayer.route('/admin/export', {
   layout: 'layout',
   template: 'orionExport',
   name: 'nicolaslopezj.orionExport',
-  reactiveTemplates: true
+  reactiveTemplates: true,
 });
 
 /**
